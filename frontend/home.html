@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Choose Profile Photo</title>
+</head>
+<body style="padding: 50px; font-family: 'Courier New', Courier, monospace; font-size: 1.5em;">
+    <h3 style="padding: 50px; box-sizing: border-box; color: white; background-color: black;">Select Profile Picture</h3>
+    <p>
+        <form id="image-uploader" action="http://localhost:4000/Profile" method="post" enctype="multipart/form-data">
+            <input style="font-size: 1em;" id="avatar" type="file" name="avatar" accept="image/*" />
+            <input style="cursor: pointer; font-size: 1em;" type="submit" value="Submit">
+            <p id="waiting" style="display: none;">
+                Please Wait ...
+            </p>
+        </form>
+    </p>
+
+    <div>         
+        <img style="width: 150px; display: inline-block;" id="uploaded-img" src="" alt="">        
+        <img style="width: 150px; display: inline-block; margin-left: 50px;" id="processed-img" alt="">         
+    </div>
+
+    <div style="margin-top: 20px; display: none;" id="love-btn">
+        <button style="cursor: pointer; padding: 20px; color: white; background-color: forestgreen; border: 1px solid forestgreen; 
+        border-radius: 5px;" onclick="returnLove()">I love it 🥰</button>
+    </div>
+
+    <script>
+
+        function returnLove(){
+            alert('We Love You too 🥰')
+        }
+
+        function wait(){
+            document.querySelector('#waiting').style.display = 'block';
+        }
+
+        function stopWaiting(){
+            document.querySelector('#waiting').style.display = 'none';
+        }
+
+        function showLove(){
+            document.querySelector('#love-btn').style.display = 'block';
+        }
+
+        function hideLove(){
+            document.querySelector('#love-btn').style.display = 'none';
+        }
+
+        const imageChooser = document.getElementById('avatar');
+        imageChooser.addEventListener('change',()=>{  
+
+            const outputImg = document.querySelector('#processed-img');
+            outputImg.src = ''
+
+            hideLove();
+
+            console.log('File changed!')
+            const uploadedImg = document.querySelector('#uploaded-img');
+            uploadedImg.src = URL.createObjectURL(imageChooser.files[0]);
+        });
+
+
+        const imgForm = document.getElementById('image-uploader');
+        imgForm.addEventListener('submit', (e)=>{
+            e.preventDefault();
+            wait();
+            const formData = new FormData();
+            const fileField = document.querySelector('#avatar'); 
+            formData.append('avatar', fileField.files[0]);
+            
+            
+            fetch('http://localhost:4000/Profile', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(result => {
+                stopWaiting();
+                console.log('Success:', result);
+                //alert(result)
+                if(result.status == "success"){
+                    const outputImg = document.querySelector('#processed-img');
+                    outputImg.src = result.url;
+                    showLove();
+                }else{
+                    alert(result.message)
+                }
+            })
+            .catch((error) => {
+                stopWaiting();
+                console.error('Error:', error);
+                alert(error)
+            });
+             
+        });
+    </script>
+    
+</body>
+</html>

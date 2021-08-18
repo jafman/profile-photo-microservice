@@ -105,6 +105,7 @@ app.post('/profile', upload.single('avatar'), function (req, res, next) {
 })
 
 app.use('/processed', express.static('processed'));
+app.use('/', express.static('frontend'))
 
 app.listen(4000, ()=>{
     console.log('Server listening on 4000!');
