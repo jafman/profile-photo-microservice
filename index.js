@@ -1,19 +1,35 @@
 const express = require('express')
 const multer  = require('multer')
-const upload = multer({ dest: 'uploads/' })
+const path = require('path');
+//const upload = multer({ dest: 'uploads/' })
 const sirvtoken = require('./sirv/token');
 const sirvinfo = require('./sirv/account-info');
 const sirvUpload = require('./sirv/upload');
 const sirvCrop = require('./sirv/crop-image');
 const bgRemover = require('./remove-bg/removebg');
-
 const app = express()
+
+//
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads/')
+    },
+    filename: function (req, file, cb) {
+      cb(null, Date.now() + path.extname(file.originalname)) //Appending extension
+    }
+})
+  
+var upload = multer({ storage: storage });
+
+//////////////////
 
 app.post('/profile', upload.single('avatar'), function (req, res, next) {
     const allowedFiles = ['.jpg', '.jpeg', '.png'];
     const uploadedFile = req.file;
-    const extension = uploadedFile.originalname.substring(uploadedFile.originalname.lastIndexOf('.'));
-    const newFileName = uploadedFile.filename+extension;
+    //const extension = uploadedFile.originalname.substring(uploadedFile.originalname.lastIndexOf('.'));
+    //const newFileName = uploadedFile.filename+extension;
+    const newFileName = uploadedFile.filename;
+    const extension = path.extname(newFileName);
 
     if(allowedFiles.includes(extension)){
         sirvtoken.getToken((err, data)=>{
