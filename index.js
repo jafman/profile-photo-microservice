@@ -7,9 +7,9 @@ const sirvinfo = require('./sirv/account-info');
 const sirvUpload = require('./sirv/upload');
 const sirvCrop = require('./sirv/crop-image');
 const bgRemover = require('./remove-bg/removebg');
+const faces = require('./sirv/detect-face');
 const app = express()
 
-//
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, 'uploads/')
@@ -19,17 +19,14 @@ var storage = multer.diskStorage({
     }
 })
   
-var upload = multer({ storage: storage });
-
-//////////////////
+var upload = multer({ storage: storage }); 
 
 app.post('/profile', upload.single('avatar'), function (req, res, next) {
     const allowedFiles = ['.jpg', '.jpeg', '.png'];
-    const uploadedFile = req.file;
-    //const extension = uploadedFile.originalname.substring(uploadedFile.originalname.lastIndexOf('.'));
-    //const newFileName = uploadedFile.filename+extension;
+    const uploadedFile = req.file; 
     const newFileName = uploadedFile.filename;
-    const extension = path.extname(newFileName);
+    const extension = path.extname(newFileName).toLowerCase();
+
 
     if(allowedFiles.includes(extension)){
         sirvtoken.getToken((err, data)=>{
@@ -82,5 +79,18 @@ app.use('/processed', express.static('processed'));
 
 app.listen(4000, ()=>{
     console.log('Server listening on 4000!');
+    faces.detect('1629292753975.PNG', (err, data)=>{
+        
+        if(err){
+            console.log('No face detected, file may be missing. 😭')
+        }else{
+            //console.log(data.original.smartcrop.faces);
+            if(data.original.smartcrop.faces.faces && data.original.smartcrop.faces.faces.length > 0){
+                console.log('Face Detected!')
+            }else{
+                console.log('No face detected! 😭 ')
+            }
+        }
+    });
 })
 
