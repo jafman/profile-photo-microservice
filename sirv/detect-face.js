@@ -7,13 +7,11 @@ exports.detect = (img, callback) => {
     fetch(url)
         .then(res => res.json())
         .then((data) => {
-            //console.log(json)
-            //console.log(data);
-            console.log(data)
+            //console.log(data)
             callback(false, data);
         })
         .catch((err)=>{
-            //may be file not found
+            //file not found
             callback(true, err)
         });
 

@@ -39,7 +39,7 @@ exports.uploadImage = (token, image, callback) => {
             req.end();
         }else{
             callback(true, err)
-            console.log('Readfile error ', err)
+            //console.log('Readfile error ', err)
         }
     });
 

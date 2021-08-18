@@ -8,7 +8,9 @@ const sirvUpload = require('./sirv/upload');
 const sirvCrop = require('./sirv/crop-image');
 const bgRemover = require('./remove-bg/removebg');
 const faces = require('./sirv/detect-face');
-const app = express()
+const app = express();
+require('dotenv').config();
+const port = process.env.PORT
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -76,7 +78,7 @@ app.post('/profile', upload.single('avatar'), function (req, res, next) {
                                             res.status(200).json({
                                                 'status': 'success',
                                                 'message': 'success',
-                                                'url': `http://localhost:4000/processed/${newFileName}`
+                                                'url': `http://localhost:${port}/processed/${newFileName}`
                                             });
                                         }
                                     }); 
@@ -107,7 +109,7 @@ app.post('/profile', upload.single('avatar'), function (req, res, next) {
 app.use('/processed', express.static('processed'));
 app.use('/', express.static('frontend'))
 
-app.listen(4000, ()=>{
-    console.log('Server listening on 4000!');
+app.listen(port, ()=>{
+    console.log('Server listening on port '+port);
 })
 
