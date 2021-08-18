@@ -10,28 +10,61 @@ const bgRemover = require('./remove-bg/removebg');
 const app = express()
 
 app.post('/profile', upload.single('avatar'), function (req, res, next) {
-  // req.file is the `avatar` file
-  // req.body will hold the text fields, if there were any
-  console.dir(req.file);
+    const allowedFiles = ['.jpg', '.jpeg', '.png'];
+    const uploadedFile = req.file;
+    const extension = uploadedFile.originalname.substring(uploadedFile.originalname.lastIndexOf('.'));
+    const newFileName = uploadedFile.filename+extension;
+
+    if(allowedFiles.includes(extension)){
+        sirvtoken.getToken((err, data)=>{
+            if(err){
+                res.status(500).json({
+                    'status': 'error',
+                    'message': 'We messed up, 😭 we could not upload your image, please try again.'
+                });
+            }else{
+                data = JSON.parse(data); 
+                sirvUpload.uploadImage(data.token, newFileName, (err, statusCode)=>{
+                    if(err || statusCode != 200){
+                        console.log('Error uploading Image!', err);
+                        res.status(500).json({
+                            'status': 'error',
+                            'message': 'We messed up, 😭 we could not upload your image, please try again.'
+                        });
+                    }else{                     
+                        let url = `https://ackeyogr.sirv.com/tempstore/${newFileName}?crop.type=face&cw=400&ch=450`;
+                        bgRemover.removeBG(url, newFileName, (err, msg)=>{
+                            console.log(msg)
+                            if(err){
+                                res.status(500).json({
+                                    'status': 'error',
+                                    'message': 'We messed up, 😭 we could not process your image, please try again.'
+                                });
+                            }else{
+                                res.status(200).json({
+                                    'status': 'success',
+                                    'message': 'success',
+                                    'url': `http://localhost:4000/processed/${newFileName}`
+                                });
+                            }
+                        }); 
+                    }
+                });
+            }
+    
+        });
+    }else{
+        res.status(400).json({
+            'status': 'error',
+            'message': 'File type not supported! 😭. Upload JPEG or PNG file'
+        });
+    }
+    
 })
 
 app.use('/processed', express.static('processed'));
 
 app.listen(4000, ()=>{
     console.log('Server listening on 4000!');
-    sirvtoken.getToken((err, data)=>{
-        data = JSON.parse(data); 
-        sirvUpload.uploadImage(data.token, 'friend.jpg', (err, statusCode)=>{
-            if(err){
-                console.log('Error uploading Image!', err);
-            }else{
-                let url = `https://ackeyogr.sirv.com/tempstore/friend.jpg?crop.type=face&cw=400&ch=450`;
-                bgRemover.removeBG(url,'friend.jpg', (err, msg)=>{
-                    console.log(msg)
-                });
-            }
-        });
-
-    });
 })
 

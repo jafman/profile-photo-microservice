@@ -23,9 +23,13 @@ exports.getToken = (callback) => {
     });
 
     res.on("end", function () {
-        var body = Buffer.concat(chunks);
-        //console.log(body.toString());
-        callback(false, body.toString())
+        var body = Buffer.concat(chunks); 
+        if(res.statusCode == 200){
+            callback(false, body.toString());
+        }else{
+            callback(true, "can't get token!")
+        }
+        
     });
     });
 
