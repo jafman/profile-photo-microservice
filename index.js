@@ -15,7 +15,7 @@ var storage = multer.diskStorage({
       cb(null, 'uploads/')
     },
     filename: function (req, file, cb) {
-      cb(null, Date.now() + path.extname(file.originalname)) //Appending extension
+      cb(null, Date.now() + path.extname(file.originalname).toLowerCase()) //Appending extension
     }
 })
   
@@ -44,23 +44,52 @@ app.post('/profile', upload.single('avatar'), function (req, res, next) {
                             'status': 'error',
                             'message': 'We messed up, 😭 we could not upload your image, please try again.'
                         });
-                    }else{                     
-                        let url = `https://ackeyogr.sirv.com/tempstore/${newFileName}?crop.type=face&cw=400&ch=450`;
-                        bgRemover.removeBG(url, newFileName, (err, msg)=>{
-                            console.log(msg)
+                    }else{
+                        // check if image has a face
+                        faces.detect(  newFileName, (err, faceData)=>{
+        
                             if(err){
+                                console.log(faceData);
                                 res.status(500).json({
                                     'status': 'error',
-                                    'message': 'We messed up, 😭 we could not process your image, please try again.'
+                                    'message': 'Sorry, 😭 we could not detect a face, please upload another picture.'
                                 });
                             }else{
-                                res.status(200).json({
-                                    'status': 'success',
-                                    'message': 'success',
-                                    'url': `http://localhost:4000/processed/${newFileName}`
-                                });
+                                //console.log(faceData.original.smartcrop.faces);
+                                var faceCount = 0;
+                                try{
+                                    faceCount = faceData.processingSettings.crop.faces.faces.length
+                                }catch(errmsg){
+                                    console.log('face count: ',errmsg)
+                                }
+                                if(faceCount > 0){
+                                    //console.log('Face Detected!')
+                                    let url = `https://ackeyogr.sirv.com/tempstore/${newFileName}?crop.type=face&cw=400&ch=450`;
+                                    bgRemover.removeBG(url, newFileName, (err, msg)=>{
+                                        console.log(msg)
+                                        if(err){
+                                            res.status(500).json({
+                                                'status': 'error',
+                                                'message': 'We messed up, 😭 we could not process your image, please try again.'
+                                            });
+                                        }else{
+                                            res.status(200).json({
+                                                'status': 'success',
+                                                'message': 'success',
+                                                'url': `http://localhost:4000/processed/${newFileName}`
+                                            });
+                                        }
+                                    }); 
+
+                                }else{
+                                    res.status(400).json({
+                                        'status': 'error',
+                                        'message': 'Sorry, 😭 no human face detected, please upload another picture.'
+                                    });
+                                }
                             }
-                        }); 
+                        });
+                        //                     
                     }
                 });
             }
@@ -79,18 +108,5 @@ app.use('/processed', express.static('processed'));
 
 app.listen(4000, ()=>{
     console.log('Server listening on 4000!');
-    faces.detect('1629292753975.PNG', (err, data)=>{
-        
-        if(err){
-            console.log('No face detected, file may be missing. 😭')
-        }else{
-            //console.log(data.original.smartcrop.faces);
-            if(data.original.smartcrop.faces.faces && data.original.smartcrop.faces.faces.length > 0){
-                console.log('Face Detected!')
-            }else{
-                console.log('No face detected! 😭 ')
-            }
-        }
-    });
 })
 
