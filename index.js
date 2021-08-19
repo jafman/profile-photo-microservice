@@ -8,6 +8,7 @@ const sirvUpload = require('./sirv/upload');
 const sirvCrop = require('./sirv/crop-image');
 const bgRemover = require('./remove-bg/removebg');
 const faces = require('./sirv/detect-face');
+const cors = require('cors');
 const app = express();
 require('dotenv').config();
 const port = process.env.PORT
@@ -22,6 +23,8 @@ var storage = multer.diskStorage({
 })
   
 var upload = multer({ storage: storage }); 
+
+app.use(cors());
 
 app.post('/profile', upload.single('avatar'), function (req, res, next) {
     const allowedFiles = ['.jpg', '.jpeg', '.png'];
