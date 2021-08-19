@@ -81,7 +81,7 @@ app.post('/profile', upload.single('avatar'), function (req, res, next) {
                                             res.status(200).json({
                                                 'status': 'success',
                                                 'message': 'success',
-                                                'url': `http://localhost:${port}/processed/${newFileName}`
+                                                'url': `https://profile-photo-service.herokuapp.com/processed/${newFileName}`
                                             });
                                         }
                                     }); 
