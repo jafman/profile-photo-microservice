@@ -10,7 +10,7 @@ To test the microservice, a frontend UI was created which can be found in the fr
 2. Run  ```npm install``` to install all dependencies
 3. Open the ```home.html``` file in the frontend folder and set the appropriate port on line 76.
 4. Run ```npm start```  
-5. Visit ```localhost:4040/home``` assuming your selected port is ```4040```
+5. Visit ```localhost:4040/home.html``` assuming your selected port is ```4040```
 6. Upload a user profile picture and see the magic
 
 
