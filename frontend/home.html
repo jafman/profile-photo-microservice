@@ -73,7 +73,7 @@
             formData.append('avatar', fileField.files[0]);
             
             
-            fetch('http://localhost:4040/Profile', {
+            fetch('https://profile-photo-service.herokuapp.com/Profile', {
                 method: 'POST',
                 body: formData
             })
