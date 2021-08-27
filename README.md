@@ -1,5 +1,4 @@
-# Boardroom One Hackathon
-## Microservice for Profile Photos
+# Microservice for Profile Photos
 
 This microservice creates a uniform profile image from images upload by user. It detects face in an image, crop the image and applies a black background.
 
